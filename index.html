@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRPCOM CONVERTER v.6.6</title>
+    <!-- Open Graph Meta Tags for Social Media Previews -->
+    <meta property="og:title" id="ogTitle" content="SRPCOM CONVERTER v.6.6">
+    <meta property="og:description" content="Konversi berbagai format proxy ke YAML dengan mudah. Mendukung VLESS, VMess, Trojan, dan HTTP Upgrade.">
+    <meta property="og:image" content="https://github.com/srpcom/netlify/blob/main/logo%20kecil%20srpcom.png?raw=true">
+    <meta property="og:url" content=""> <!-- You can set the final URL here later -->
+
+    <!-- Favicon -->
+    <link rel="icon" href="https://github.com/srpcom/netlify/blob/main/logo%20kecil%20srpcom.png?raw=true" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Keyframes for animation */
+        @keyframes animateRainbow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes animateRunningText { to { background-position: -200% center; } }
+
+        /* --- Blinking Text & Border Animation --- */
+        @keyframes blink-orange-border { 50% { border-color: #f97316; box-shadow: 0 0 12px #f97316; } }
+        @keyframes blink-green-text { 50% { color: #16a34a; text-shadow: 0 0 8px #16a34a; } }
+
+        /* --- Base Styles --- */
+        body { font-family: 'Inter', sans-serif; overflow-x: hidden; padding-bottom: 4rem; background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); background-size: 400% 400%; animation: animateRainbow 15s ease infinite; }
+        .header-container { display: flex; align-items: center; justify-content: center; margin-top: 1rem; margin-bottom: 0.5rem; gap: 0.75rem; }
+        .logo-img { max-width: 75px; height: auto; border-radius: 0.5rem; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4)); }
+        .main-title-text { font-size: 1.875rem; font-weight: 700; background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: animateRunningText 4s linear infinite; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); }
+        .container { background-color: rgba(220, 252, 231, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 1rem; border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); padding: 2rem; max-width: 900px; width: 95%; margin: 0 auto 2rem auto; }
+        
+        /* --- Interactive Styles --- */
+        textarea { resize: vertical; transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, height 0.3s ease, rows 0.3s ease; border: 2px solid transparent; }
+        textarea.blinking-orange-border { animation: blink-orange-border 1.5s infinite; }
+        textarea.static-green-border { border-color: #22c55e; background-color: #dcfce7 !important; }
+
+        pre { white-space: pre-wrap; word-break: break-all; border: 2px solid #d1d5db; border-radius: 0.5rem; padding: 1rem; color: #1f2937; font-size: 0.875rem; overflow-x: auto; min-height: 150px; transition: background-color 0.3s ease, border-color 0.3s ease; }
+        
+        .message-box { margin-top: 1rem; padding: 0.75rem; border-radius: 0.5rem; text-align: center; font-size: 0.875rem; transition: opacity 0.5s ease-in-out, transform 0.3s ease, height 0.3s ease, padding 0.3s ease, margin 0.3s ease; }
+        .message-box.success { background-color: #d1fae5; color: #065f46; }
+        .message-box.error { background-color: #fee2e2; color: #991b1b; }
+        .message-box.info { background-color: #dbeafe; color: #1e40af; }
+        .message-box.warning { background-color: #fef3c7; color: #92400e; }
+
+        .action-button, .toggle-button { position: relative; font-weight: 600; padding: 0.5rem; border-radius: 0.5rem; border: 2px solid transparent; border-bottom-width: 4px; transition: all 0.15s ease-in-out; text-align: center; font-size: 0.875rem; line-height: 1.25rem; }
+        .action-button:hover:not(:disabled), .toggle-button:hover:not(:disabled) { transform: translateY(-2px); }
+        .action-button:active:not(:disabled), .toggle-button:active:not(:disabled) { transform: translateY(1px); border-bottom-width: 2px; }
+        .action-button:disabled, .toggle-button:disabled { background-color: #e5e7eb !important; border-color: #d1d5db !important; color: #9ca3af !important; cursor: not-allowed; opacity: 1; }
+        
+        .toggle-button.active { transform: translateY(1px); border-bottom-width: 2px; }
+        
+        /* --- All Bug Button --- */
+        .all-bugs-on {
+            background-image: linear-gradient(90deg, #f87171, #fb923c, #facc15, #4ade80, #38bdf8, #818cf8, #c084fc, #f87171);
+            background-size: 200% 200%;
+            color: white;
+            font-weight: 700;
+            border: 4px solid transparent !important;
+            border-image: none !important;
+            animation: animateRainbow 4s ease infinite;
+        }
+        .all-bugs-off {
+            border-width: 4px !important;
+            border-style: solid;
+            border-image-slice: 1;
+            border-image-source: linear-gradient(to right, #f87171, #fb923c, #facc15, #4ade80, #38bdf8, #818cf8, #c084fc);
+            background-color: rgba(255, 255, 255, 0.6) !important;
+            color: #92400e !important;
+        }
+        #btnAllBugs:disabled {
+            border: 2px solid #d1d5db !important; 
+            border-bottom-width: 4px !important;
+            background-color: #e5e7eb !important; 
+            color: #9ca3af !important;
+            border-image: none !important; 
+        }
+
+        .info-text { font-weight: 500; font-size: 0.875rem; }
+        .account-count-info { color: #f97316; } /* Orange-500 */
+        .output-count-info { color: #15803d; } /* Green-700 */
+        .blinking-number { animation: blink-green-text 1s infinite; }
+
+        .hadith-quote-container { text-align: center; margin-top: 2rem; padding: 0 1rem; font-style: italic; color: white; text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6); min-height: 40px; }
+        .footer-link-container { text-align: center; margin-top: 1rem; padding-bottom: 1rem; }
+        .footer-link { color: #000000; text-decoration: none; font-weight: 600; text-shadow: 1px 1px 2px rgba(255,255,255,0.4); }
+        .footer-link:hover { text-decoration: underline; color: #1f2937; }
+        
+        @media (max-width: 768px) { 
+            .header-container { flex-direction: column; gap: 0.25rem; } 
+            .main-title-text { font-size: 1.5rem; } 
+            .button-actions-group { flex-direction: column; gap: 0.75rem; } 
+            .button-actions-group .action-button { width: 100%; } 
+            #toggleButtonGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .toggle-button { padding: 0.5rem 0.25rem; font-size: 0.75rem; }
+        }
+        @media (max-width: 480px) { 
+            .container { padding: 1.5rem; } 
+            .main-title-text { font-size: 1.25rem; } 
+            #toggleButtonGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center min-h-screen p-4">
+
+    <a href="https://t.me/srpcomadmin" target="_blank" rel="noopener noreferrer" class="block w-full">
+        <div class="header-container">
+            <img src="https://github.com/srpcom/netlify/blob/main/logo%20kecil%20srpcom.png?raw=true" alt="Logo SRPCOM" class="logo-img" onerror="this.onerror=null; this.src='https://placehold.co/75x25/f87171/ffffff?text=Logo&font=inter'; this.alt='Placeholder Logo SRPCOM';">
+            <h1 id="appTitle" class="main-title-text"></h1>
+        </div>
+    </a>
+
+    <div class="container">
+        <div class="space-y-6">
+            <div>
+                 <div class="flex justify-between items-center mb-2">
+                    <div id="accountCountInfo" class="info-text account-count-info" style="display: none;"></div>
+                    <button id="btnClearInput" style="display: none;" class="bg-pink-500 bg-opacity-50 hover:bg-opacity-70 text-white font-semibold py-1 px-3 rounded-lg text-sm">
+                        Hapus saja
+                    </button>
+                </div>
+                <textarea
+                    id="proxyUriInput"
+                    rows="8"
+                    class="w-full p-3 rounded-lg focus:outline-none bg-white"
+                    placeholder="Tempel URI atau detail akun di sini..."
+                ></textarea>
+                <div id="outputCountInfo" class="info-text output-count-info text-left mt-2" style="display: none;"></div>
+            </div>
+
+            <!-- Button Grid -->
+            <div id="toggleButtonGrid" class="grid grid-cols-3 md:grid-cols-4 gap-4">
+                <button id="btnVidio" class="toggle-button">Vidio</button>
+                <button id="btnXcvip" class="toggle-button">XCVIP</button>
+                <button id="btnZoom" class="toggle-button">xcvipwc</button>
+                <button id="btnVidioSni" class="toggle-button">vidioSNI</button>
+                <button id="btnAvaWc" class="toggle-button">avaWC</button>
+                <button id="btnFb" class="toggle-button">fb</button>
+                <button id="btnSpotify" class="toggle-button">spotify</button>
+                <button id="btnNetflix" class="toggle-button">netflix</button>
+                <button id="btnConvert" class="toggle-button">Tanpa bug</button>
+                <button id="btnAllBugs" class="toggle-button col-span-3 md:col-span-4">All Bug</button>
+            </div>
+
+            <div>
+                <pre id="yamlOutput"></pre>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center gap-4 button-actions-group">
+                <button id="btnCopy" class="action-button action-button-lower bg-teal-600 hover:bg-teal-700 text-white">Salin YAML</button>
+                <button id="btnExportTxt" class="action-button action-button-lower bg-orange-500 hover:bg-orange-600 text-white">Export ke .txt</button>
+                <button id="btnExportFullConfig" class="action-button action-button-lower bg-black hover:bg-gray-800 text-white">Config Siap Pakai</button>
+            </div>
+
+            <div id="messageBox" class="message-box" style="display: none;"></div>
+        </div>
+    </div>
+    
+    <div id="hadithQuoteContainer" class="hadith-quote-container"></div>
+    <div class="footer-link-container">
+        <a href="https://t.me/srpcomgroup" target="_blank" class="footer-link">join : t.me/srpcomgroup</a>
+    </div>
+
+    <script>
+        // --- APPLICATION SETTINGS ---
+        const APP_VERSION = "6.6";
+        const APP_NAME = "SRPCOM CONVERTER";
+        // -------------------------
+
+        // --- GOOGLE APPS SCRIPT SETTINGS ---
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxoRq19zXE3N3rA4S7lkb4A_gP4KykrNqgX0k6-Z4pzwKtNi4wC6enBpHRBY9uepeoM/exec";
+        const SECRET_KEY = "makan"; // This must match the SECRET_KEY in your GAS script
+        // -------------------------------------
+
+        // --- DOM Element Cache ---
+        const dom = {
+            appTitle: document.getElementById('appTitle'),
+            ogTitle: document.getElementById('ogTitle'),
+            proxyUriInput: document.getElementById('proxyUriInput'),
+            yamlOutput: document.getElementById('yamlOutput'),
+            messageBox: document.getElementById('messageBox'),
+            hadithQuoteContainer: document.getElementById('hadithQuoteContainer'),
+            btnClearInput: document.getElementById('btnClearInput'),
+            toggleButtonGrid: document.getElementById('toggleButtonGrid'),
+            accountCountInfo: document.getElementById('accountCountInfo'),
+            outputCountInfo: document.getElementById('outputCountInfo'),
+            btnCopy: document.getElementById('btnCopy'),
+            btnExportTxt: document.getElementById('btnExportTxt'),
+            btnExportFullConfig: document.getElementById('btnExportFullConfig'),
+            allToggleButtons: () => document.querySelectorAll('.toggle-button'),
+            lowerActionButtons: () => document.querySelectorAll('.action-button-lower'),
+        };
+
+        // --- State Management ---
+        const state = {
+            activeButtons: new Set(),
+            lastActiveButtonId: null,
+            lastSavedUris: new Set(), // To prevent duplicate saves
+        };
+
+        // --- Configuration ---
+        const modificationRules = {
+            'btnVidio':    { suffix: '_vidio',    rule: { newServer: 'quiz.vidio.com' } },
+            'btnXcvip':    { suffix: '_xcvip',    rule: { newServer: 'xcvip.srpcom.online' } },
+            'btnZoom':     { suffix: '_xcvipwc',  rule: { newServer: 'support.zoom.us', prefixSniHost: 'support.zoom.us.' } },
+            'btnVidioSni': { suffix: '_vidiosni', rule: { newSni: 'quiz.vidio.com', newHost: 'quiz.vidio.com' } },
+            'btnAvaWc':    { suffix: '_avawc',    rule: { newServer: 'ava.game.naver.com', prefixSniHost: 'ava.game.naver.com.' } },
+            'btnFb':       { suffix: '_fb',       rule: { newServer: 'investor.fb.com' } },
+            'btnSpotify':  { suffix: '_spotify',  rule: { newServer: 'investors.spotify.com' } },
+            'btnNetflix':  { suffix: '_netflix',  rule: { newServer: 'cache.netflix.com' } },
+            'btnConvert':  { suffix: '',          rule: {} } 
+        };
+
+        const buttonStateClasses = {
+            'btnVidio':    { on: ['bg-purple-600', 'text-white', 'active'], off: ['bg-white', 'text-purple-600', 'border-purple-400'] },
+            'btnXcvip':    { on: ['bg-indigo-600', 'text-white', 'active'], off: ['bg-white', 'text-indigo-600', 'border-indigo-400'] },
+            'btnZoom':     { on: ['bg-red-600', 'text-white', 'active'], off: ['bg-white', 'text-red-600', 'border-red-400'] },
+            'btnVidioSni': { on: ['bg-green-600', 'text-white', 'active'], off: ['bg-white', 'text-green-600', 'border-green-400'] },
+            'btnAvaWc':    { on: ['bg-yellow-400', 'text-black', 'active'], off: ['bg-white', 'text-yellow-500', 'border-yellow-400'] },
+            'btnFb':       { on: ['bg-blue-800', 'text-white', 'active'], off: ['bg-white', 'text-blue-800', 'border-blue-600'] },
+            'btnSpotify':  { on: ['bg-green-500', 'text-white', 'active'], off: ['bg-white', 'text-green-600', 'border-green-500'] },
+            'btnNetflix':  { on: ['bg-red-700', 'text-white', 'active'], off: ['bg-white', 'text-red-700', 'border-red-500'] },
+            'btnConvert':  { on: ['bg-gray-200', 'text-black', 'active'], off: ['bg-white', 'text-gray-500', 'border-gray-400'] },
+            'btnAllBugs':  { on: ['all-bugs-on', 'active'], off: ['all-bugs-off'] }
+        };
+
+        const outputStyleMap = {
+            'btnVidio':    { border: '#a855f7', bg: '#f3e8ff' },
+            'btnXcvip':    { border: '#6366f1', bg: '#e0e7ff' },
+            'btnZoom':     { border: '#ef4444', bg: '#fee2e2' },
+            'btnVidioSni': { border: '#22c55e', bg: '#dcfce7' },
+            'btnAvaWc':    { border: '#facc15', bg: '#fef9c3' },
+            'btnFb':       { border: '#1877F2', bg: '#dbeafe' },
+            'btnSpotify':  { border: '#1DB954', bg: '#d1fae5' },
+            'btnNetflix':  { border: '#E50914', bg: '#fee2e2' },
+            'btnConvert':  { border: '#3b82f6', bg: '#dbeafe' },
+            'btnAllBugs':  { border: '#f59e0b', bg: '#fef3c7' }
+        };
+        
+        const hadithQuotes = ["\"Sebaik-baik manusia adalah yang paling bermanfaat bagi manusia lain.\"", "\"Amal yang paling dicintai oleh Allah adalah yang paling terus-menerus meskipun sedikit.\"", "\"Barangsiapa menempuh jalan untuk mencari ilmu, maka Allah akan memudahkan baginya jalan menuju surga.\"", "\"Senyummu di hadapan saudaramu adalah sedekah bagimu.\"", "\"Orang yang kuat bukanlah dia yang pandai bergulat, tetapi orang yang kuat adalah dia yang mampu mengendalikan dirinya ketika marah.\"", "\"Sesungguhnya Allah tidak melihat pada bentuk rupa dan harta kalian, tetapi Dia melihat pada hati dan amalan kalian.\"", "\"Setiap kebaikan adalah sedekah.\"", "\"Jauhilah olehmu sifat hasad (dengki), karena sesungguhnya hasad itu memakan kebaikan-kebaikan sebagaimana api memakan kayu bakar.\"", "\"Barangsiapa yang tidak menyayangi, maka ia tidak akan disayangi.\"", "\"Tinggalkanlah apa yang meragukanmu kepada apa yang tidak meragukanmu.\"", "\"Sebagian dari kebaikan Islam seseorang adalah meninggalkan apa yang tidak bermanfaat baginya.\"", "\"Bertakwalah kepada Allah di mana pun kamu berada, iringilah perbuatan buruk dengan perbuatan baik yang akan menghapusnya, dan bergaullah dengan manusia dengan akhlak yang baik.\"", "\"Dua nikmat yang banyak manusia tertipu di dalamnya, yaitu kesehatan dan waktu luang.\"", "\"Barangsiapa yang beriman kepada Allah dan hari akhir, maka hendaklah ia berkata baik atau diam.\"", "\"Setiap anak Adam sering berbuat salah, dan sebaik-baik orang yang berbuat salah adalah yang mau bertaubat.\"", "\"Sesungguhnya kejujuran akan membimbing pada kebaikan, dan kebaikan itu akan membimbing ke surga.\"", "\"Permudahlah dan jangan mempersulit, berilah kabar gembira dan jangan membuat orang lari.\"", "\"Takutlah kepada neraka meskipun hanya dengan (sedekah) sebiji kurma.\"", "\"Ikhlaslah dalam beramal, niscaya cukup bagimu amalan yang sedikit.\"", "\"Barangsiapa yang ingin dilapangkan rezekinya dan dipanjangkan umurnya, maka hendaklah ia menyambung tali silaturahmi.\"", "\"Sesungguhnya amalan itu tergantung pada niatnya, dan setiap orang akan mendapatkan sesuai dengan apa yang ia niatkan.\"", "\"Bukanlah kekayaan itu karena banyaknya harta, tetapi kekayaan yang hakiki adalah kekayaan jiwa (hati).\"", "\"Dunia adalah penjara bagi orang mukmin dan surga bagi orang kafir.\"", "\"Allah tidak akan menyiksa suatu kaum hingga mereka meminta ampun.\"", "\"Agama itu mudah, maka janganlah kamu mempersulitnya.\"", "\"Malu adalah sebagian dari iman.\"", "\"Doa adalah senjatanya orang mukmin.\"", "\"Kebersihan adalah sebagian dari iman.\"", "\"Barangsiapa yang memudahkan urusan orang lain, maka Allah akan memudahkan urusannya di dunia dan akhirat.\"", "\"Tidak ada ketaatan kepada makhluk dalam bermaksiat kepada Khaliq (Pencipta).\""];
+
+        // --- Utility Functions ---
+        function showMessage(msg, type = 'info', duration = 3000) {
+            dom.messageBox.textContent = msg;
+            dom.messageBox.className = `message-box ${type}`;
+            dom.messageBox.style.display = 'block';
+            dom.messageBox.style.opacity = 1;
+            setTimeout(() => {
+                dom.messageBox.style.opacity = 0;
+                setTimeout(() => { dom.messageBox.style.display = 'none'; }, 500);
+            }, duration);
+        }
+
+        function decodeBase64(str) {
+            str = str.replace(/-/g, '+').replace(/_/g, '/');
+            while (str.length % 4) { str += '='; }
+            try {
+                return decodeURIComponent(atob(str).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+            } catch (e) {
+                console.error("Base64 Decode Error:", e);
+                return null; // Return null on failure
+            }
+        }
+
+        function fallbackCopyToClipboard(text, msg) {
+            if (!text || text.trim() === '' || text.trim() === 'proxies:') {
+                showMessage('No output to copy.', 'info');
+                return;
+            }
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = 0;
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                showMessage(msg, 'success');
+            } catch (err) {
+                showMessage('Failed to copy. Please copy manually.', 'error');
+            } finally {
+                document.body.removeChild(ta);
+            }
+        }
+
+        function sanitizeFilename(name) {
+            const baseName = (name || 'config').replace(/_(vidio|xcvip|xcvipwc|vidiosni|avawc|fb|spotify|netflix)$/, '');
+            return baseName.replace(/[<>:"/\\|?*\s]+/g, '_').replace(/[^a-zA-Z0-9_.-]/g, '').substring(0, 50) || 'config';
+        }
+
+        function exportToFile(content, filename, type) {
+            try {
+                const blob = new Blob([content], { type });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+                showMessage(`Successfully exported to ${filename}!`, 'success');
+            } catch (err) {
+                showMessage('Failed to export file.', 'error');
+            }
+        }
+
+        // --- Core Logic ---
+        function parseUri(uri) {
+            try {
+                if (uri.startsWith('vmess://')) {
+                    const decodedJson = decodeBase64(uri.substring(8).trim());
+                    if (!decodedJson) return null;
+                    const config = JSON.parse(decodedJson);
+                    return {
+                        type: 'vmess',
+                        name: config.ps || 'VMess_Proxy',
+                        server: config.add,
+                        port: config.port,
+                        uuid: config.id,
+                        alterId: config.aid || 0,
+                        cipher: 'auto',
+                        tls: config.tls === 'tls',
+                        network: config.net || 'tcp',
+                        path: config.path,
+                        host: config.host,
+                        sni: config.sni,
+                        isHttpUpgrade: config.net === 'httpupgrade',
+                    };
+                }
+                const url = new URL(uri);
+                const params = url.searchParams;
+                const name = decodeURIComponent(url.hash.substring(1));
+
+                if (uri.startsWith('vless://')) {
+                    return {
+                        type: 'vless',
+                        name: name || `vless-${url.hostname}`,
+                        server: url.hostname,
+                        port: url.port,
+                        uuid: url.username,
+                        network: params.get('type') || 'tcp',
+                        tls: params.get('security') === 'tls',
+                        sni: params.get('sni'),
+                        host: params.get('host'),
+                        path: params.get('path'),
+                        serviceName: params.get('serviceName'),
+                        isHttpUpgrade: params.get('type') === 'httpupgrade',
+                    };
+                }
+                if (uri.startsWith('trojan://')) {
+                    return {
+                        type: 'trojan',
+                        name: name || `trojan-${url.hostname}`,
+                        server: url.hostname,
+                        port: url.port,
+                        password: url.username,
+                        network: params.get('type') || 'tcp',
+                        sni: params.get('sni'),
+                        host: params.get('host'),
+                        path: params.get('path'),
+                        serviceName: params.get('serviceName'),
+                        isHttpUpgrade: params.get('type') === 'httpupgrade',
+                    };
+                }
+            } catch (e) {
+                console.error(`Failed to parse URI: ${uri}`, e);
+                return null;
+            }
+            return null;
+        }
+
+        function generateYaml(parsed, rule, suffix, expiryDate) {
+            // Apply modification rules
+            const finalServer = rule.newServer || parsed.server;
+            let finalSni = parsed.sni || parsed.host || parsed.server;
+            if (rule.newSni) finalSni = rule.newSni;
+            else if (rule.prefixSniHost) finalSni = rule.prefixSniHost + parsed.server;
+
+            let finalHost = parsed.host || parsed.server;
+            if (rule.newHost) finalHost = rule.newHost;
+            else if (rule.prefixSniHost) finalHost = rule.prefixSniHost + parsed.server;
+
+            // Build YAML structure as a JS object
+            const config = {
+                name: `"${parsed.name}${suffix}"`,
+                type: parsed.type,
+                server: finalServer,
+                port: parsed.port,
+                udp: true,
+                'skip-cert-verify': true,
+            };
+
+            // Protocol-specific properties
+            if (parsed.type === 'vmess') {
+                Object.assign(config, { uuid: parsed.uuid, alterId: parsed.alterId, cipher: parsed.cipher });
+            } else if (parsed.type === 'vless') {
+                Object.assign(config, { uuid: parsed.uuid, cipher: 'auto' });
+            } else if (parsed.type === 'trojan') {
+                config.password = `"${parsed.password}"`;
+            }
+
+            // TLS and Network properties
+            if (parsed.isHttpUpgrade) {
+                config.tls = parsed.tls;
+                config.servername = finalSni;
+                config['client-fingerprint'] = 'chrome';
+                config.alpn = ['http/1.1'];
+                config.network = 'ws';
+                config['ws-opts'] = {
+                    path: `"${parsed.path}"`,
+                    headers: {
+                        Host: finalHost,
+                        'v2ray-http-upgrade': true,
+                        'v2ray-http-upgrade-fast-open': false,
+                    }
+                };
+                if (parsed.type === 'trojan') {
+                    delete config.servername;
+                    config.sni = finalSni;
+                }
+            } else {
+                config.tls = parsed.tls;
+                if (config.tls) {
+                    config[parsed.type === 'trojan' ? 'sni' : 'servername'] = finalSni;
+                }
+                config.network = parsed.network;
+                if (parsed.network === 'ws') {
+                    config['ws-opts'] = {
+                        path: `"${parsed.path || '/'}"`,
+                        headers: { Host: finalHost }
+                    };
+                } else if (parsed.network === 'grpc') {
+                    config['grpc-opts'] = { 'grpc-service-name': `"${parsed.serviceName || ''}"` };
+                }
+            }
+            
+            // Convert JS object to YAML string
+            let yamlString = `- ${Object.entries(config).map(([key, value]) => {
+                if (typeof value === 'object' && value !== null) {
+                    if (key === 'alpn') return `alpn:\n   - ${value.join('\n   - ')}`;
+                    const subEntries = Object.entries(value).map(([subKey, subValue]) => {
+                         if (typeof subValue === 'object' && subValue !== null) {
+                             const headerEntries = Object.entries(subValue).map(([hKey, hValue]) => `     ${hKey}: ${hValue}`).join('\n');
+                             return `   ${subKey}:\n${headerEntries}`;
+                         }
+                         return `   ${subKey}: ${subValue}`;
+                    }).join('\n');
+                    return `${key}:\n${subEntries}`;
+                }
+                return `${key}: ${value}`;
+            }).join('\n  ')}`;
+
+            // MODIFIED: Add expiry status with remaining days calculation
+            if (expiryDate) {
+                const expiry = new Date(expiryDate.replace('WIB', '').trim());
+                if (!isNaN(expiry.getTime())) {
+                    const now = new Date();
+                    now.setHours(0, 0, 0, 0);
+                    expiry.setHours(0, 0, 0, 0);
+
+                    const diffTime = expiry - now;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    let statusText;
+                    if (diffDays < 0) {
+                        statusText = '(AKUN SUDAH EXPIRED)';
+                    } else {
+                        statusText = `(sisa ${diffDays} hari)`;
+                    }
+                    yamlString += `\n#EXPIRED ON : ${expiryDate} ${statusText}`;
+                } else {
+                    yamlString += `\n#EXPIRED ON : ${expiryDate}`;
+                }
+            } else {
+                // Handle cases where there is no expiry date
+                yamlString += `\n#EXPIRED ON : -`;
+            }
+            
+            return yamlString;
+        }
+
+        function getValidUris(rawInput) {
+            const urisToProcess = new Map();
+            const uriRegex = /(vmess|vless|trojan):\/\/\S+/g;
+            
+            // Define a reliable separator for distinct accounts.
+            // This looks for the header-like line, e.g., "[XRAY/VMESS_WS]"
+            const accountSeparator = /\[\w+\/\w+_\w+\]/;
+            
+            // Split the input into potential account blocks.
+            // We add the separator back to the block for context.
+            const blocks = rawInput.split(accountSeparator).map((part, index, arr) => {
+                if (index > 0) {
+                    const separatorMatch = rawInput.match(new RegExp(accountSeparator.source, 'g'));
+                    return separatorMatch[index - 1] + part;
+                }
+                return part;
+            });
+
+            for (const block of blocks) {
+                const trimmedBlock = block.trim();
+                if (trimmedBlock === '') continue;
+
+                let tlsUri = null;
+                let nonTlsUri = null;
+                let expiry = null;
+
+                const lines = trimmedBlock.split('\n');
+                for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    
+                    if (trimmedLine.startsWith("LINK WS TLS :")) {
+                        const match = trimmedLine.match(uriRegex);
+                        if (match) tlsUri = match[0];
+                    } else if (trimmedLine.startsWith("LINK WS NONE-TLS :")) {
+                        const match = trimmedLine.match(uriRegex);
+                        if (match) nonTlsUri = match[0];
+                    } else if (trimmedLine.toUpperCase().startsWith("EXPIRED ON")) {
+                        const expiryMatch = trimmedLine.match(/(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2})/);
+                        if (expiryMatch) expiry = expiryMatch[1];
+                    }
+                }
+
+                // Prioritize TLS link if found within the block, otherwise use non-TLS
+                const finalUri = tlsUri || nonTlsUri;
+                if (finalUri && !urisToProcess.has(finalUri)) {
+                    urisToProcess.set(finalUri, { uri: finalUri, expiry });
+                }
+            }
+            
+            // Fallback for unstructured input (just a list of URIs)
+            if (urisToProcess.size === 0) {
+                 const directMatches = rawInput.match(uriRegex);
+                 if (directMatches) {
+                    directMatches.forEach(uri => {
+                        if(!urisToProcess.has(uri)) {
+                             urisToProcess.set(uri, { uri, expiry: null });
+                        }
+                    });
+                 }
+            }
+
+            return Array.from(urisToProcess.values());
+        }
+
+
+        function autoGenerate() {
+            const rawInput = dom.proxyUriInput.value.trim();
+            const urisToProcess = getValidUris(rawInput);
+            
+            let finalYaml = 'proxies:\n';
+            let successCount = 0;
+
+            const buttonsToProcess = state.activeButtons.has('btnAllBugs')
+                ? Object.keys(modificationRules).filter(id => id !== 'btnConvert')
+                : Array.from(state.activeButtons);
+
+            for (const uriItem of urisToProcess) {
+                const parsedUri = parseUri(uriItem.uri);
+                if (!parsedUri) continue;
+
+                for (const buttonId of buttonsToProcess) {
+                    const mod = modificationRules[buttonId];
+                    if (!mod) continue;
+                    
+                    try {
+                        finalYaml += generateYaml(parsedUri, mod.rule, mod.suffix, uriItem.expiry) + '\n\n';
+                        successCount++;
+                    } catch (e) {
+                        console.error(`Error converting URI ${uriItem.uri} with rule ${buttonId}:`, e);
+                    }
+                }
+            }
+
+            dom.yamlOutput.textContent = successCount > 0 ? finalYaml.trim() : '';
+            updateUICounts(urisToProcess.length, successCount);
+            updateUIState(rawInput.length > 0, urisToProcess.length > 0, successCount > 0);
+            // Return the results for the handler to use
+            return { urisToProcess, successCount };
+        }
+
+        // --- UI Update Functions ---
+        function updateUICounts(inputCount, outputCount) {
+            if (inputCount > 0) {
+                dom.accountCountInfo.textContent = `Accounts Detected: ${inputCount}`;
+                dom.accountCountInfo.style.display = 'block';
+            } else {
+                dom.accountCountInfo.style.display = 'none';
+            }
+
+            if (outputCount > 0) {
+                dom.outputCountInfo.innerHTML = `Output generated: <span class="blinking-number">${outputCount}</span>`;
+                dom.outputCountInfo.style.display = 'block';
+            } else {
+                dom.outputCountInfo.style.display = 'none';
+            }
+        }
+
+        function updateUIState(hasInput, hasValidUris, hasOutput) {
+            dom.btnClearInput.style.display = hasInput ? 'block' : 'none';
+            dom.lowerActionButtons().forEach(btn => btn.disabled = !hasOutput);
+
+            if (hasValidUris) {
+                dom.proxyUriInput.className = 'w-full p-3 rounded-lg focus:outline-none bg-white static-green-border';
+                dom.proxyUriInput.placeholder = `${getValidUris(dom.proxyUriInput.value).length} Accounts Detected. Please select a bug button.`;
+                dom.allToggleButtons().forEach(btn => btn.disabled = false);
+            } else if (hasInput) {
+                dom.proxyUriInput.className = 'w-full p-3 rounded-lg focus:outline-none bg-white blinking-orange-border';
+                dom.proxyUriInput.placeholder = 'Paste URI or account details here... No valid accounts detected.';
+                dom.allToggleButtons().forEach(btn => btn.disabled = true);
+            } else {
+                setInitialState();
+            }
+
+            // Update output style
+            if (state.lastActiveButtonId && outputStyleMap[state.lastActiveButtonId]) {
+                const styles = outputStyleMap[state.lastActiveButtonId];
+                dom.yamlOutput.style.backgroundColor = styles.bg;
+                dom.yamlOutput.style.borderColor = styles.border;
+            } else {
+                dom.yamlOutput.style.backgroundColor = '';
+                dom.yamlOutput.style.borderColor = '#d1d5db';
+            }
+        }
+        
+        function setButtonState(button, state) {
+            const classes = buttonStateClasses[button.id];
+            if (!classes) return;
+            const allStateClasses = [...classes.on, ...classes.off].flat();
+            button.classList.remove(...allStateClasses);
+            button.classList.add(...classes[state]);
+        }
+
+        function setInitialState() {
+            dom.proxyUriInput.value = '';
+            dom.proxyUriInput.placeholder = 'Paste URI or account details here...';
+            dom.proxyUriInput.className = 'w-full p-3 rounded-lg focus:outline-none bg-white blinking-orange-border';
+            dom.proxyUriInput.rows = 8;
+            
+            dom.yamlOutput.textContent = '';
+            dom.yamlOutput.style.backgroundColor = '';
+            dom.yamlOutput.style.borderColor = '#d1d5db';
+
+            dom.lowerActionButtons().forEach(btn => btn.disabled = true);
+            dom.btnClearInput.style.display = 'none';
+            dom.accountCountInfo.style.display = 'none';
+            dom.outputCountInfo.style.display = 'none';
+            
+            state.activeButtons.clear();
+            state.lastActiveButtonId = null;
+            state.lastSavedUris.clear();
+
+            dom.allToggleButtons().forEach(button => {
+                button.disabled = true;
+                setButtonState(button, 'off');
+                if (button.id === 'btnAllBugs') {
+                    button.textContent = 'All Bug';
+                }
+            });
+        }
+
+        // --- Google Sheet Integration ---
+        async function saveNewAccountsToSheet(urisToProcess, totalConverted) {
+            const newAccounts = urisToProcess.filter(acc => !state.lastSavedUris.has(acc.uri));
+
+            if (newAccounts.length === 0) return;
+
+            // Mark these as "to be saved" immediately to prevent race conditions
+            newAccounts.forEach(acc => state.lastSavedUris.add(acc.uri));
+
+            // Prepare payload with all new accounts and the total count
+            const payload = {
+                accounts: newAccounts.map(acc => {
+                    const parsed = parseUri(acc.uri); // Parse once to reuse
+                    return {
+                        uri: acc.uri,
+                        expiry: acc.expiry,
+                        originalServer: parsed?.server || 'unknown',
+                        name: parsed?.name || 'N/A' // Add the name here
+                    };
+                }),
+                totalConverted: totalConverted
+            };
+
+            try {
+                await fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload),
+                    signal: AbortSignal.timeout(15000) // 15-second timeout
+                });
+                // Fire-and-forget, no need to check response.
+            } catch (error) {
+                console.error('Error sending batch data to Google Sheet:', error);
+                // If sending fails, allow them to be sent again on the next try.
+                newAccounts.forEach(acc => state.lastSavedUris.delete(acc.uri));
+            }
+        }
+
+        // --- Event Handlers ---
+        function handleInput() {
+            const { urisToProcess, successCount } = autoGenerate();
+            if (urisToProcess.length > 0) {
+                saveNewAccountsToSheet(urisToProcess, successCount);
+            }
+        }
+
+        function handleToggleButtonClick(e) {
+            const button = e.target.closest('.toggle-button');
+            if (!button || button.disabled) return;
+
+            const buttonId = button.id;
+            dom.proxyUriInput.rows = 1;
+
+            const allBugBtn = document.getElementById('btnAllBugs');
+            const bugButtons = Object.keys(modificationRules).filter(id => id !== 'btnAllBugs' && id !== 'btnConvert');
+
+            if (buttonId === 'btnAllBugs') {
+                const isTurningOn = !state.activeButtons.has('btnAllBugs');
+                bugButtons.forEach(id => {
+                    const btn = document.getElementById(id);
+                    if (isTurningOn) {
+                        state.activeButtons.add(id);
+                        setButtonState(btn, 'on');
+                    } else {
+                        state.activeButtons.delete(id);
+                        setButtonState(btn, 'off');
+                    }
+                });
+            } else {
+                 if (state.activeButtons.has(buttonId)) {
+                    state.activeButtons.delete(buttonId);
+                } else {
+                    state.activeButtons.add(buttonId);
+                    state.lastActiveButtonId = buttonId;
+                }
+                setButtonState(button, state.activeButtons.has(buttonId) ? 'on' : 'off');
+            }
+            
+            // Sync 'All Bug' button state
+            const allBugsActive = bugButtons.every(id => state.activeButtons.has(id));
+            if (allBugsActive) {
+                state.activeButtons.add('btnAllBugs');
+                setButtonState(allBugBtn, 'on');
+                allBugBtn.textContent = 'Semua Bug Digunakan';
+                state.lastActiveButtonId = 'btnAllBugs';
+            } else {
+                state.activeButtons.delete('btnAllBugs');
+                setButtonState(allBugBtn, 'off');
+                allBugBtn.textContent = 'All Bug';
+                if (state.lastActiveButtonId === 'btnAllBugs') {
+                    state.lastActiveButtonId = Array.from(state.activeButtons).filter(id => id !== 'btnAllBugs').pop() || null;
+                }
+            }
+            
+            if (state.activeButtons.size === 0) state.lastActiveButtonId = null;
+            
+            autoGenerate();
+        }
+        
+        function handleExportFullConfig() {
+            const proxiesYaml = dom.yamlOutput.textContent;
+            if (!proxiesYaml || proxiesYaml.trim().length <= 8) { showMessage('No proxies to create config.', 'info'); return; }
+            
+            const proxyNames = (proxiesYaml.match(/- name: "([^"]+)"/g) || []).map(line => line.match(/- name: "([^"]+)"/)[1]);
+            const baseName = sanitizeFilename(proxyNames[0]);
+            const filename = `${baseName}_config.yaml`;
+
+            const fullConfig = `port: 7890
+socks-port: 7891
+redir-port: 7892
+mixed-port: 7893
+tproxy-port: 7895
+ipv6: false
+mode: rule
+log-level: silent
+allow-lan: true
+external-controller: 0.0.0.0:9090
+secret: ''
+bind-address: '*'
+unified-delay: true
+profile:
+  store-selected: true
+dns:
+  enable: true
+  ipv6: false
+  enhanced-mode: redir-host
+  listen: 0.0.0.0:7874
+  nameserver:
+  - 8.8.8.8
+  - 1.0.0.1
+  - https://dns.google/dns-query
+  fallback:
+  - 1.1.1.1
+  - 8.8.4.4
+  - https://cloudflare-dns.com/dns-query
+  - 112.215.203.254
+${proxiesYaml}
+
+proxy-groups:
+- name: SRPCOMVPN
+  type: select
+  proxies:
+${proxyNames.map(n => `  - "${n}"`).join('\n') || '  - DIRECT'}
+
+- name: FALLBACK
+  type: fallback
+  url: http://www.gstatic.com/generate_204
+  interval: 300
+  proxies:
+${proxyNames.map(n => `  - "${n}"`).join('\n') || '  - DIRECT'}
+
+rules:
+- MATCH,SRPCOMVPN
+`;
+            exportToFile(fullConfig, filename, 'application/x-yaml;charset=utf-8');
+        }
+
+        // --- Initialization ---
+        function init() {
+            const fullTitle = `${APP_NAME} v.${APP_VERSION}`;
+            document.title = fullTitle;
+            dom.appTitle.textContent = fullTitle;
+            if (dom.ogTitle) dom.ogTitle.setAttribute('content', fullTitle);
+            
+            if (dom.hadithQuoteContainer) {
+                dom.hadithQuoteContainer.textContent = hadithQuotes[Math.floor(Math.random() * hadithQuotes.length)];
+            }
+            
+            setInitialState();
+
+            // Event Listeners
+            dom.proxyUriInput.addEventListener('input', handleInput);
+            dom.proxyUriInput.addEventListener('focus', () => { dom.proxyUriInput.rows = Math.max(3, Math.min(10, dom.proxyUriInput.value.split('\n').length)); });
+            dom.btnClearInput.addEventListener('click', setInitialState);
+            dom.toggleButtonGrid.addEventListener('click', handleToggleButtonClick);
+            dom.btnCopy.addEventListener('click', () => fallbackCopyToClipboard(dom.yamlOutput.textContent, 'YAML copied successfully!'));
+            dom.btnExportTxt.addEventListener('click', () => exportToFile(dom.yamlOutput.textContent, 'proxies.txt', 'text/plain;charset=utf-8'));
+            dom.btnExportFullConfig.addEventListener('click', handleExportFullConfig);
+        }
+
+        window.onload = init;
+
+    </script>
+</body>
+</html>
