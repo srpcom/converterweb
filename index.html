@@ -812,7 +812,7 @@ ${proxyNames.map(n => `  - "${n}"`).join('\n') || '  - DIRECT'}
 ${proxyNames.map(n => `  - "${n}"`).join('\n') || '  - DIRECT'}
 
 rules:
-- MATCH,SRPCOMVPN
+- MATCH,GLOBAL
 `;
             exportToFile(fullConfig, filename, 'application/x-yaml;charset=utf-8');
         }
