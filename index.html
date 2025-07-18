@@ -381,49 +381,20 @@
             else if (rule.prefixSniHost) finalHost = rule.prefixSniHost + parsed.server;
 
             // Build YAML structure as a JS object
-            const config = {
-                name: `"${parsed.name}${suffix}"`,
-                type: parsed.type,
-                server: finalServer,
-                port: parsed.port,
-                udp: true,
-                'skip-cert-verify': true,
-            };
+            let config;
 
-            // Protocol-specific properties
-            if (parsed.type === 'vmess') {
-                Object.assign(config, { uuid: parsed.uuid, alterId: parsed.alterId, cipher: parsed.cipher });
-            } else if (parsed.type === 'vless') {
-                Object.assign(config, { uuid: parsed.uuid, cipher: 'auto' });
-            } else if (parsed.type === 'trojan') {
-                config.password = `"${parsed.password}"`;
-            }
-
-            // TLS and Network properties
-            if (parsed.isHttpUpgrade) {
-                config.tls = parsed.tls;
-                config.servername = finalSni;
-                config['client-fingerprint'] = 'chrome';
-                config.alpn = ['http/1.1'];
-                config.network = 'ws';
-                config['ws-opts'] = {
-                    path: `"${parsed.path}"`,
-                    headers: {
-                        Host: finalHost,
-                        'v2ray-http-upgrade': true,
-                        'v2ray-http-upgrade-fast-open': false,
-                    }
+            // Specific handling for Trojan to match the desired output format
+            if (parsed.type === 'trojan') {
+                config = {
+                    name: `${parsed.name}${suffix}`, // Name will be handled as unquoted string
+                    server: finalServer,
+                    port: parsed.port,
+                    type: 'trojan',
+                    password: `"${parsed.password}"`, // Add quotes here directly
+                    'skip-cert-verify': true,
+                    sni: finalSni,
+                    network: parsed.network,
                 };
-                if (parsed.type === 'trojan') {
-                    delete config.servername;
-                    config.sni = finalSni;
-                }
-            } else {
-                config.tls = parsed.tls;
-                if (config.tls) {
-                    config[parsed.type === 'trojan' ? 'sni' : 'servername'] = finalSni;
-                }
-                config.network = parsed.network;
                 if (parsed.network === 'ws') {
                     config['ws-opts'] = {
                         path: `"${parsed.path || '/'}"`,
@@ -432,25 +403,76 @@
                 } else if (parsed.network === 'grpc') {
                     config['grpc-opts'] = { 'grpc-service-name': `"${parsed.serviceName || ''}"` };
                 }
+                config.udp = true;
+            } else { // Keep original logic for other types
+                config = {
+                    name: `"${parsed.name}${suffix}"`,
+                    type: parsed.type,
+                    server: finalServer,
+                    port: parsed.port,
+                    udp: true,
+                    'skip-cert-verify': true,
+                };
+
+                if (parsed.type === 'vmess') {
+                    Object.assign(config, { uuid: parsed.uuid, alterId: parsed.alterId, cipher: parsed.cipher });
+                } else if (parsed.type === 'vless') {
+                    Object.assign(config, { uuid: parsed.uuid, cipher: 'auto' });
+                }
+
+                if (parsed.isHttpUpgrade) {
+                    config.tls = parsed.tls;
+                    config.servername = finalSni;
+                    config['client-fingerprint'] = 'chrome';
+                    config.alpn = ['http/1.1'];
+                    config.network = 'ws';
+                    config['ws-opts'] = {
+                        path: `"${parsed.path}"`,
+                        headers: {
+                            Host: finalHost,
+                            'v2ray-http-upgrade': true,
+                            'v2ray-http-upgrade-fast-open': false,
+                        }
+                    };
+                    if (parsed.type === 'trojan') { // This case is unlikely but handled
+                        delete config.servername;
+                        config.sni = finalSni;
+                    }
+                } else {
+                    config.tls = parsed.tls;
+                    if (config.tls) {
+                        config[parsed.type === 'trojan' ? 'sni' : 'servername'] = finalSni;
+                    }
+                    config.network = parsed.network;
+                    if (parsed.network === 'ws') {
+                        config['ws-opts'] = {
+                            path: `"${parsed.path || '/'}"`,
+                            headers: { Host: finalHost }
+                        };
+                    } else if (parsed.network === 'grpc') {
+                        config['grpc-opts'] = { 'grpc-service-name': `"${parsed.serviceName || ''}"` };
+                    }
+                }
             }
-            
+                
             // Convert JS object to YAML string
+            // Object.entries preserves insertion order for non-integer keys
             let yamlString = `- ${Object.entries(config).map(([key, value]) => {
                 if (typeof value === 'object' && value !== null) {
-                    if (key === 'alpn') return `alpn:\n   - ${value.join('\n   - ')}`;
+                    if (key === 'alpn') return `alpn:\n    - ${value.join('\n    - ')}`;
                     const subEntries = Object.entries(value).map(([subKey, subValue]) => {
-                         if (typeof subValue === 'object' && subValue !== null) {
-                             const headerEntries = Object.entries(subValue).map(([hKey, hValue]) => `     ${hKey}: ${hValue}`).join('\n');
-                             return `   ${subKey}:\n${headerEntries}`;
-                         }
-                         return `   ${subKey}: ${subValue}`;
+                        if (typeof subValue === 'object' && subValue !== null) {
+                            const headerEntries = Object.entries(subValue).map(([hKey, hValue]) => `      ${hKey}: ${hValue}`).join('\n');
+                            return `    ${subKey}:\n${headerEntries}`;
+                        }
+                        return `    ${subKey}: ${subValue}`;
                     }).join('\n');
                     return `${key}:\n${subEntries}`;
                 }
                 return `${key}: ${value}`;
             }).join('\n  ')}`;
 
-            // MODIFIED: Add expiry status with remaining days calculation
+            // Add expiry status with remaining days calculation
             if (expiryDate) {
                 const expiry = new Date(expiryDate.replace('WIB', '').trim());
                 if (!isNaN(expiry.getTime())) {
@@ -467,8 +489,10 @@
                     } else {
                         statusText = `(sisa ${diffDays} hari)`;
                     }
+                    // Use the original expiryDate string which includes WIB
                     yamlString += `\n#EXPIRED ON : ${expiryDate} ${statusText}`;
                 } else {
+                    // If parsing fails, just show the original string
                     yamlString += `\n#EXPIRED ON : ${expiryDate}`;
                 }
             } else {
@@ -483,12 +507,8 @@
             const urisToProcess = new Map();
             const uriRegex = /(vmess|vless|trojan):\/\/\S+/g;
             
-            // Define a reliable separator for distinct accounts.
-            // This looks for the header-like line, e.g., "[XRAY/VMESS_WS]"
             const accountSeparator = /\[\w+\/\w+_\w+\]/;
             
-            // Split the input into potential account blocks.
-            // We add the separator back to the block for context.
             const blocks = rawInput.split(accountSeparator).map((part, index, arr) => {
                 if (index > 0) {
                     const separatorMatch = rawInput.match(new RegExp(accountSeparator.source, 'g'));
@@ -516,27 +536,29 @@
                         const match = trimmedLine.match(uriRegex);
                         if (match) nonTlsUri = match[0];
                     } else if (trimmedLine.toUpperCase().startsWith("EXPIRED ON")) {
-                        const expiryMatch = trimmedLine.match(/(\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2})/);
-                        if (expiryMatch) expiry = expiryMatch[1];
+                        // Correctly capture the full expiry string including timezone
+                        const expiryParts = trimmedLine.split(':');
+                        if (expiryParts.length > 1) {
+                            expiry = expiryParts.slice(1).join(':').trim();
+                        }
                     }
                 }
 
-                // Prioritize TLS link if found within the block, otherwise use non-TLS
                 const finalUri = tlsUri || nonTlsUri;
                 if (finalUri && !urisToProcess.has(finalUri)) {
                     urisToProcess.set(finalUri, { uri: finalUri, expiry });
                 }
             }
             
-            // Fallback for unstructured input (just a list of URIs)
+            // Fallback for unstructured input
             if (urisToProcess.size === 0) {
                  const directMatches = rawInput.match(uriRegex);
                  if (directMatches) {
-                    directMatches.forEach(uri => {
-                        if(!urisToProcess.has(uri)) {
-                             urisToProcess.set(uri, { uri, expiry: null });
-                        }
-                    });
+                     directMatches.forEach(uri => {
+                         if(!urisToProcess.has(uri)) {
+                              urisToProcess.set(uri, { uri, expiry: null });
+                         }
+                     });
                  }
             }
 
@@ -575,7 +597,6 @@
             dom.yamlOutput.textContent = successCount > 0 ? finalYaml.trim() : '';
             updateUICounts(urisToProcess.length, successCount);
             updateUIState(rawInput.length > 0, urisToProcess.length > 0, successCount > 0);
-            // Return the results for the handler to use
             return { urisToProcess, successCount };
         }
 
@@ -612,7 +633,6 @@
                 setInitialState();
             }
 
-            // Update output style
             if (state.lastActiveButtonId && outputStyleMap[state.lastActiveButtonId]) {
                 const styles = outputStyleMap[state.lastActiveButtonId];
                 dom.yamlOutput.style.backgroundColor = styles.bg;
@@ -665,18 +685,16 @@
 
             if (newAccounts.length === 0) return;
 
-            // Mark these as "to be saved" immediately to prevent race conditions
             newAccounts.forEach(acc => state.lastSavedUris.add(acc.uri));
 
-            // Prepare payload with all new accounts and the total count
             const payload = {
                 accounts: newAccounts.map(acc => {
-                    const parsed = parseUri(acc.uri); // Parse once to reuse
+                    const parsed = parseUri(acc.uri);
                     return {
                         uri: acc.uri,
                         expiry: acc.expiry,
                         originalServer: parsed?.server || 'unknown',
-                        name: parsed?.name || 'N/A' // Add the name here
+                        name: parsed?.name || 'N/A'
                     };
                 }),
                 totalConverted: totalConverted
@@ -688,12 +706,10 @@
                     mode: 'cors',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(payload),
-                    signal: AbortSignal.timeout(15000) // 15-second timeout
+                    signal: AbortSignal.timeout(15000)
                 });
-                // Fire-and-forget, no need to check response.
             } catch (error) {
                 console.error('Error sending batch data to Google Sheet:', error);
-                // If sending fails, allow them to be sent again on the next try.
                 newAccounts.forEach(acc => state.lastSavedUris.delete(acc.uri));
             }
         }
@@ -738,7 +754,6 @@
                 setButtonState(button, state.activeButtons.has(buttonId) ? 'on' : 'off');
             }
             
-            // Sync 'All Bug' button state
             const allBugsActive = bugButtons.every(id => state.activeButtons.has(id));
             if (allBugsActive) {
                 state.activeButtons.add('btnAllBugs');
@@ -763,7 +778,7 @@
             const proxiesYaml = dom.yamlOutput.textContent;
             if (!proxiesYaml || proxiesYaml.trim().length <= 8) { showMessage('No proxies to create config.', 'info'); return; }
             
-            const proxyNames = (proxiesYaml.match(/- name: "([^"]+)"/g) || []).map(line => line.match(/- name: "([^"]+)"/)[1]);
+            const proxyNames = (proxiesYaml.match(/- name: ([^\n]+)/g) || []).map(line => line.match(/- name: ([^\n]+)/)[1].replace(/"/g, ''));
             const baseName = sanitizeFilename(proxyNames[0]);
             const filename = `${baseName}_config.yaml`;
 
