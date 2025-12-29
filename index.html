@@ -139,7 +139,8 @@
                 <button id="btnSpotify" class="toggle-button">spotify</button>
                 <button id="btnNetflix" class="toggle-button">netflix</button>
                 <button id="btnVidibeat" class="toggle-button">vidibeat</button>
-                <button id="btnTiktokWC" class="toggle-button">tiktokWC</button> <!-- TOMBOL BARU DITAMBAHKAN -->
+                <button id="btnTiktokWC" class="toggle-button">tiktokWC</button>
+                <button id="btnSupportZoomWc" class="toggle-button">SupportzoomWC</button> <!-- TOMBOL BARU -->
                 <button id="btnConvert" class="toggle-button">Tanpa bug</button>
                 <button id="btnAllBugs" class="toggle-button col-span-3 md:col-span-4">All Bug</button>
             </div>
@@ -211,7 +212,8 @@
             'btnSpotify':  { suffix: '_spotify',  rule: { newServer: 'investors.spotify.com' } },
             'btnNetflix':  { suffix: '_netflix',  rule: { newServer: 'cache.netflix.com' } },
             'btnVidibeat': { suffix: '_vidibeat', rule: { newServer: 'vidi.srpcom.cloud' } },
-            'btnTiktokWC': { suffix: '_tiktokwc', rule: { newServer: 'api24-normal.tiktokv.com', prefixSniHost: 'api24-normal.tiktokv.com.' } }, // ATURAN DIPERBARUI
+            'btnTiktokWC': { suffix: '_tiktokwc', rule: { newServer: 'api24-normal.tiktokv.com', prefixSniHost: 'api24-normal.tiktokv.com.' } },
+            'btnSupportZoomWc': { suffix: '_supportzoomwc', rule: { newServer: 'support.zoom.us', prefixSniHost: 'support.zoom.us.' } }, // RULE BARU
             'btnConvert':  { suffix: '',          rule: {} } 
         };
 
@@ -225,7 +227,8 @@
             'btnSpotify':  { on: ['bg-green-500', 'text-white', 'active'], off: ['bg-white', 'text-green-600', 'border-green-500'] },
             'btnNetflix':  { on: ['bg-red-700', 'text-white', 'active'], off: ['bg-white', 'text-red-700', 'border-red-500'] },
             'btnVidibeat': { on: ['bg-teal-500', 'text-white', 'active'], off: ['bg-white', 'text-teal-600', 'border-teal-500'] },
-            'btnTiktokWC': { on: ['bg-pink-600', 'text-white', 'active'], off: ['bg-white', 'text-pink-600', 'border-pink-500'] }, // STYLE BARU DITAMBAHKAN
+            'btnTiktokWC': { on: ['bg-pink-600', 'text-white', 'active'], off: ['bg-white', 'text-pink-600', 'border-pink-500'] },
+            'btnSupportZoomWc': { on: ['bg-cyan-600', 'text-white', 'active'], off: ['bg-white', 'text-cyan-600', 'border-cyan-500'] }, // STYLE BARU
             'btnConvert':  { on: ['bg-gray-200', 'text-black', 'active'], off: ['bg-white', 'text-gray-500', 'border-gray-400'] },
             'btnAllBugs':  { on: ['all-bugs-on', 'active'], off: ['all-bugs-off'] }
         };
@@ -240,7 +243,8 @@
             'btnSpotify':  { border: '#1DB954', bg: '#d1fae5' },
             'btnNetflix':  { border: '#E50914', bg: '#fee2e2' },
             'btnVidibeat': { border: '#14b8a6', bg: '#ccfbf1' },
-            'btnTiktokWC': { border: '#db2777', bg: '#fce7f3' }, // STYLE OUTPUT BARU DITAMBAHKAN
+            'btnTiktokWC': { border: '#db2777', bg: '#fce7f3' },
+            'btnSupportZoomWc': { border: '#0891b2', bg: '#cffafe' }, // STYLE OUTPUT BARU (Cyan)
             'btnConvert':  { border: '#3b82f6', bg: '#dbeafe' },
             'btnAllBugs':  { border: '#f59e0b', bg: '#fef3c7' }
         };
@@ -292,7 +296,7 @@
         }
 
         function sanitizeFilename(name) {
-            const baseName = (name || 'config').replace(/_(vidio|xcvip|xcvipwc|vidiosni|avawc|fb|spotify|netflix|vidibeat|tiktokwc)$/, ''); // Ditambahkan tiktokwc
+            const baseName = (name || 'config').replace(/_(vidio|xcvip|xcvipwc|vidiosni|avawc|fb|spotify|netflix|vidibeat|tiktokwc|supportzoomwc)$/, ''); // Updated
             return baseName.replace(/[<>:"/\\|?*\s]+/g, '_').replace(/[^a-zA-Z0-9_.-]/g, '').substring(0, 50) || 'config';
         }
 
